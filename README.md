@@ -1,2 +1,3 @@
-# redis-utils
-some function to use redis in go easier
+# redistag
+
+With tag of redis, setting struct into redis, getting struct from redis.

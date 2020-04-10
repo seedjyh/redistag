@@ -1,5 +1,5 @@
-// tag
-package redis
+// redis
+package redistag
 
 import (
 	"fmt"
@@ -56,6 +56,14 @@ func HMGet(redisClient redis.Cmdable, key string, v interface{}) error {
 		}
 		hashKeys = append(hashKeys, quote)
 	}
+	// 确认存在性
+	if exist, err := redisClient.Exists(key).Result(); err != nil {
+		return err
+	} else {
+		if exist == 0 {
+			return redis.Nil
+		}
+	}
 	// 实际查询
 	values, err := redisClient.HMGet(key, hashKeys...).Result()
 	if err != nil {
@@ -68,7 +76,7 @@ func HMGet(redisClient redis.Cmdable, key string, v interface{}) error {
 		}
 		valueStr := values[i].(string)
 		elementValue := valueElements.Field(i)
-		// 暂时只支持string, int, int32, int64, float32, float64
+		// 暂时只支持string, int, int32, int64, float32, float64, bool
 		switch fieldType := elementValue.Type(); fieldType {
 		case reflect.TypeOf(""):
 			elementValue.SetString(valueStr)
@@ -83,6 +91,12 @@ func HMGet(redisClient redis.Cmdable, key string, v interface{}) error {
 				return fmt.Errorf("can not transform \"%s\" to float64, error=%+v", valueStr, err)
 			} else {
 				elementValue.SetFloat(valueFloat64)
+			}
+		case reflect.TypeOf(true):
+			if valueBool, err := strconv.ParseBool(valueStr); err != nil {
+				return fmt.Errorf("can not transform \"%s\" to bool, error=%+v", valueStr, err)
+			} else {
+				elementValue.SetBool(valueBool)
 			}
 		default:
 			return fmt.Errorf("type %+v is not supported", fieldType)

@@ -1,5 +1,5 @@
 // redis_test
-package redis
+package redistag
 
 import (
 	"github.com/go-redis/redis"
