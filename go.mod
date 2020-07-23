@@ -1,4 +1,4 @@
-module redistag
+module github.com/seedjyh/redistag
 
 go 1.14
 
