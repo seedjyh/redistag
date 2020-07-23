@@ -2,7 +2,7 @@
 package redistag
 
 import (
-	"github.com/go-redis/redis"
+	redisV7 "github.com/go-redis/redis/v7"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -41,7 +41,7 @@ func TestRedisClient(t *testing.T) {
 		Balance: 3.1415926,
 	}
 	key := BASE_KEY + raw.Msisdn
-	redisClient := redis.NewClusterClient(&redis.ClusterOptions{
+	redisClient := redisV7.NewClusterClient(&redisV7.ClusterOptions{
 		Addrs:              testAddressList,
 	})
 	assert.NoError(t, HMSet(redisClient, key, raw))

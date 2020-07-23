@@ -3,7 +3,7 @@ package redistag
 
 import (
 	"fmt"
-	"github.com/go-redis/redis"
+	redisV7 "github.com/go-redis/redis/v7"
 	"reflect"
 	"strconv"
 	"strings"
@@ -22,7 +22,7 @@ func LookUpSingleQuote(raw string) string {
 	return raw[firstIndex+1 : firstIndex+1+offset]
 }
 
-func HMSet(redisClient redis.Cmdable, key string, v interface{}) error {
+func HMSet(redisClient redisV7.Cmdable, key string, v interface{}) error {
 	valueMap := make(map[string]interface{})
 	typeElements := reflect.TypeOf(v).Elem()
 	valueElements := reflect.ValueOf(v).Elem()
@@ -42,7 +42,7 @@ func HMSet(redisClient redis.Cmdable, key string, v interface{}) error {
 	return err
 }
 
-func HMGet(redisClient redis.Cmdable, key string, v interface{}) error {
+func HMGet(redisClient redisV7.Cmdable, key string, v interface{}) error {
 	var hashKeys []string
 	typeElements := reflect.TypeOf(v).Elem()
 	for i := 0; i < typeElements.NumField(); i++ {
@@ -61,7 +61,7 @@ func HMGet(redisClient redis.Cmdable, key string, v interface{}) error {
 		return err
 	} else {
 		if exist == 0 {
-			return redis.Nil
+			return redisV7.Nil
 		}
 	}
 	// 实际查询
