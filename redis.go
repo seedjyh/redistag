@@ -48,7 +48,7 @@ func HMGet(redisClient redisV7.Cmdable, key string, v interface{}) error {
 	for i := 0; i < typeElements.NumField(); i++ {
 		tagBodyStr, ok := typeElements.Field(i).Tag.Lookup("redis")
 		if !ok {
-			return fmt.Errorf("no expected tag name")
+			continue
 		}
 		quote := LookUpSingleQuote(tagBodyStr)
 		if quote == "" {
@@ -72,7 +72,7 @@ func HMGet(redisClient redisV7.Cmdable, key string, v interface{}) error {
 	valueElements := reflect.ValueOf(v).Elem()
 	for i := 0; i < valueElements.NumField(); i++ {
 		if values[i] == nil {
-			return fmt.Errorf("no such field(%s)", hashKeys[i])
+			continue
 		}
 		valueStr := values[i].(string)
 		elementValue := valueElements.Field(i)
