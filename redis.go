@@ -22,20 +22,25 @@ func LookUpSingleQuote(raw string) string {
 	return raw[firstIndex+1 : firstIndex+1+offset]
 }
 
+// HMSet 将一个结构体（必须是指针）写入redis的hmset。
 func HMSet(redisClient redisV7.Cmdable, key string, v interface{}) error {
 	valueMap := make(map[string]interface{})
 	typeElements := reflect.TypeOf(v).Elem()
 	valueElements := reflect.ValueOf(v).Elem()
 	for i := 0; i < typeElements.NumField(); i++ {
 		tagBodyStr, ok := typeElements.Field(i).Tag.Lookup("redis")
-		if !ok {
-			return fmt.Errorf("no expected tag name")
+		if !ok { // no target tag
+			continue
 		}
 		quote := LookUpSingleQuote(tagBodyStr)
 		if quote == "" {
 			continue
 		}
-		valueMap[quote] = valueElements.Field(i).Interface()
+		f := valueElements.Field(i)
+		if !f.CanInterface() { // not exported
+			continue
+		}
+		valueMap[quote] = f.Interface()
 	}
 	// execute
 	_, err := redisClient.HMSet(key, valueMap).Result()
@@ -48,10 +53,12 @@ func HMGet(redisClient redisV7.Cmdable, key string, v interface{}) error {
 	for i := 0; i < typeElements.NumField(); i++ {
 		tagBodyStr, ok := typeElements.Field(i).Tag.Lookup("redis")
 		if !ok {
+			hashKeys = append(hashKeys, "")
 			continue
 		}
 		quote := LookUpSingleQuote(tagBodyStr)
 		if quote == "" {
+			hashKeys = append(hashKeys, "")
 			continue
 		}
 		hashKeys = append(hashKeys, quote)
@@ -76,6 +83,9 @@ func HMGet(redisClient redisV7.Cmdable, key string, v interface{}) error {
 		}
 		valueStr := values[i].(string)
 		elementValue := valueElements.Field(i)
+		if !elementValue.CanSet() { // unexported
+			continue
+		}
 		// 暂时只支持string, int, int32, int64, float32, float64, bool
 		switch fieldType := elementValue.Type(); fieldType {
 		case reflect.TypeOf(""):

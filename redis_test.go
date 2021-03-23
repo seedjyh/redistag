@@ -122,3 +122,31 @@ func TestHMSet2(t *testing.T) {
 	assert.NoError(t, HMGet(redisClient, key, readResult))
 	assert.Equal(t, moreNumber, readResult)
 }
+
+// 结构体某些字段没有带redis标签。
+func TestHMSet3(t *testing.T) {
+	redisClient := redisV7.NewClusterClient(&redisV7.ClusterOptions{
+		Addrs: testAddressList,
+	})
+	redisClient.Del(key)
+	defer redisClient.Del(key)
+	type Foo struct {
+		Title     string `redis:"'title123'"`
+		Price     float32 `redis:"'price456'"`
+		NoTag     string
+		LastField string `redis:"'last-field'"`
+	}
+	foo := &Foo{
+		Title:     "this-is-title",
+		Price:     3.14,
+		NoTag:     "this-is-no-tag",
+		LastField: "this-is-last-field",
+	}
+	assert.NoError(t, HMSet(redisClient, key, foo))
+	readResult := new(Foo)
+	assert.NoError(t, HMGet(redisClient, key, readResult))
+	assert.Equal(t, foo.Title, readResult.Title)
+	assert.Equal(t, foo.Price, readResult.Price)
+	assert.Equal(t, "", readResult.NoTag)
+	assert.Equal(t, foo.LastField, readResult.LastField)
+}
