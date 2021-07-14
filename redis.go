@@ -1,9 +1,10 @@
-// redis
+// Package redistag 提供了对redis的hash类型值进行struct类型的直接读写功能。
 package redistag
 
 import (
+	"context"
 	"fmt"
-	redisV7 "github.com/go-redis/redis/v7"
+	redisV8 "github.com/go-redis/redis/v8"
 	"reflect"
 	"strconv"
 	"strings"
@@ -23,7 +24,7 @@ func LookUpSingleQuote(raw string) string {
 }
 
 // HMSet 将一个结构体（必须是指针）写入redis的hmset。
-func HMSet(redisClient redisV7.Cmdable, key string, v interface{}) error {
+func HMSet(ctx context.Context, redisClient redisV8.Cmdable, key string, v interface{}) error {
 	valueMap := make(map[string]interface{})
 	typeElements := reflect.TypeOf(v).Elem()
 	valueElements := reflect.ValueOf(v).Elem()
@@ -43,11 +44,11 @@ func HMSet(redisClient redisV7.Cmdable, key string, v interface{}) error {
 		valueMap[quote] = f.Interface()
 	}
 	// execute
-	_, err := redisClient.HMSet(key, valueMap).Result()
+	_, err := redisClient.HMSet(ctx, key, valueMap).Result()
 	return err
 }
 
-func HMGet(redisClient redisV7.Cmdable, key string, v interface{}) error {
+func HMGet(ctx context.Context, redisClient redisV8.Cmdable, key string, v interface{}) error {
 	var hashKeys []string
 	typeElements := reflect.TypeOf(v).Elem()
 	for i := 0; i < typeElements.NumField(); i++ {
@@ -64,15 +65,15 @@ func HMGet(redisClient redisV7.Cmdable, key string, v interface{}) error {
 		hashKeys = append(hashKeys, quote)
 	}
 	// 确认存在性
-	if exist, err := redisClient.Exists(key).Result(); err != nil {
+	if exist, err := redisClient.Exists(ctx, key).Result(); err != nil {
 		return err
 	} else {
 		if exist == 0 {
-			return redisV7.Nil
+			return redisV8.Nil
 		}
 	}
 	// 实际查询
-	values, err := redisClient.HMGet(key, hashKeys...).Result()
+	values, err := redisClient.HMGet(ctx, key, hashKeys...).Result()
 	if err != nil {
 		return err
 	}
