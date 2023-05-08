@@ -1,8 +1,8 @@
-module github.com/seedjyh/redistag/v2
+module github.com/seedjyh/redistag/v3
 
 go 1.16
 
 require (
-	github.com/go-redis/redis/v8 v8.11.0
+	github.com/redis/go-redis/v9 v9.0.4
 	github.com/stretchr/testify v1.7.0
 )

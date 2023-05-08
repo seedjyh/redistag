@@ -3,7 +3,7 @@ package redistag
 
 import (
 	"context"
-	redisV8 "github.com/go-redis/redis/v8"
+	redisV9 "github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -56,11 +56,11 @@ func TestLookUpSingleQuote(t *testing.T) {
 	assert.Equal(t, "", LookUpSingleQuote("a'b"))
 }
 
-func prepareClientForTest(t *testing.T) *redisV8.ClusterClient {
+func prepareClientForTest(t *testing.T) *redisV9.ClusterClient {
 	if !TestWithRealRedisClusterFlag {
 		t.SkipNow()
 	}
-	return redisV8.NewClusterClient(&redisV8.ClusterOptions{
+	return redisV9.NewClusterClient(&redisV9.ClusterOptions{
 		Addrs: testAddressList,
 	})
 }

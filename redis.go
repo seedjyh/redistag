@@ -4,7 +4,7 @@ package redistag
 import (
 	"context"
 	"fmt"
-	redisV8 "github.com/go-redis/redis/v8"
+	redisV9 "github.com/redis/go-redis/v9"
 	"reflect"
 	"strconv"
 	"strings"
@@ -24,7 +24,7 @@ func LookUpSingleQuote(raw string) string {
 }
 
 // HMSet 将一个结构体（必须是指针）写入redis的hmset。
-func HMSet(ctx context.Context, redisClient redisV8.Cmdable, key string, v interface{}) error {
+func HMSet(ctx context.Context, redisClient redisV9.Cmdable, key string, v interface{}) error {
 	valueMap := make(map[string]interface{})
 	typeElements := reflect.TypeOf(v).Elem()
 	valueElements := reflect.ValueOf(v).Elem()
@@ -48,7 +48,7 @@ func HMSet(ctx context.Context, redisClient redisV8.Cmdable, key string, v inter
 	return err
 }
 
-func HMGet(ctx context.Context, redisClient redisV8.Cmdable, key string, v interface{}) error {
+func HMGet(ctx context.Context, redisClient redisV9.Cmdable, key string, v interface{}) error {
 	var hashKeys []string
 	typeElements := reflect.TypeOf(v).Elem()
 	for i := 0; i < typeElements.NumField(); i++ {
@@ -69,7 +69,7 @@ func HMGet(ctx context.Context, redisClient redisV8.Cmdable, key string, v inter
 		return err
 	} else {
 		if exist == 0 {
-			return redisV8.Nil
+			return redisV9.Nil
 		}
 	}
 	// 实际查询

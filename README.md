@@ -16,7 +16,7 @@ redistag requires a Go version with [modules](https://github.com/golang/go/wiki/
 Then, install redistag:
 
 ```shell
-go get "github.com/seedjyh/redistag/v2"
+go get "github.com/seedjyh/redistag/v3"
 ```
 
 ## Quickstart
@@ -27,8 +27,8 @@ package main
 import (
 	"context"
 	"fmt"
-	goRedis "github.com/go-redis/redis/v8"
-	redisTag "github.com/seedjyh/redistag/v2"
+	goRedis "github.com/redis/go-redis/v9"
+	redisTag "github.com/seedjyh/redistag/v3"
 )
 
 func main() {
